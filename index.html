@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encrypt & Decrypt</title>
+    <style>
+        :root {
+            --primary: #252c24;
+            --secondary: #6c7d70;
+            --bg: #f4f7f6;
+            --white: #ffffff;
+            --text: #333;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background-color: var(--bg);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            margin: 0;
+            padding: 40px 20px;
+            color: var(--text);
+        }
+
+        .container {
+            background: var(--white);
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 850px;
+            text-align: center;
+        }
+
+        h2 { margin-top: 0; color: var(--primary); }
+
+        .section-title {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #888;
+            margin: 25px 0 10px;
+            text-align: left;
+            font-weight: bold;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+
+        .row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .flex-1 { flex: 1; min-width: 150px; }
+
+        select, input[type="text"], input[type="number"], textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #edf2f7;
+            border-radius: 8px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        select:focus, input:focus, textarea:focus {
+            border-color: var(--primary);
+        }
+
+        /* Radio Mode Toggle */
+        .mode-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .mode-option {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #edf2f7;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .mode-option.active {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* Baseline Grid */
+        .baseline-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 10px;
+            border: 1px solid #eee;
+        }
+
+        .key-pair {
+            display: flex;
+            flex-direction: column;
+            width: 38px;
+        }
+
+        .key-pair label {
+            font-size: 0.65rem;
+            font-weight: bold;
+            color: #aaa;
+            margin-bottom: 3px;
+        }
+
+        .key-pair input {
+            padding: 5px 0;
+            text-align: center;
+            font-weight: bold;
+            background: #fff;
+            border-width: 1px;
+        }
+
+        textarea {
+            height: 120px;
+            resize: vertical;
+            font-family: 'Courier New', monospace;
+        }
+
+        .output-box {
+            background-color: #f1f8ff;
+            padding: 20px;
+            border-radius: 10px;
+            min-height: 60px;
+            text-align: left;
+            word-wrap: break-word;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            color: #0056b3;
+            border-left: 6px solid var(--primary);
+            margin-bottom: 15px;
+            white-space: pre-wrap;
+        }
+
+        .btn-copy {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+            font-size: 1rem;
+        }
+
+        .toast {
+            color: #28a745;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Riddle Decoder Pro</h2>
+
+    <div class="section-title">1. Select Baseline Size & Quick Mapping</div>
+    <div class="row">
+        <div class="flex-1">
+            <select id="baselineSelect" onchange="generateBaselineInputs()">
+                <option value="26">Standart Alphabet(26)</option>
+                <option value="32">Baseline 32</option>
+                <option value="64">Baseline 64</option>
+                <option value="86">Baseline 86</option>
+                <option value="128">Baseline 128</option>
+                <option value="256">Baseline 256</option>
+                <option value="10">Baseline 10</option>
+                <option value="20">Baseline 20</option>
+                <option value="30">Baseline 30</option>
+                <option value="40">Baseline 40</option>
+                <option value="50">Baseline 50</option>
+                <option value="60">Baseline 60</option>
+                <option value="70">Baseline 70</option>
+                <option value="80">Baseline 80</option>
+                <option value="90">Baseline 90</option>
+                <option value="100">Baseline 100</option>
+            </select>
+        </div>
+        <div class="flex-1">
+            <input type="text" id="bulkKeyInput" placeholder="Paste the character sequence here..." oninput="fillBaselineFromBulk()">
+        </div>
+    </div>
+
+    <div class="section-title">Baseline Configuration (Character Sequence)</div>
+    <div class="baseline-container" id="baselineGrid"></div>
+
+    <div class="section-title">2. Encryption Code & Mode</div>
+    <div class="row">
+        <div class="flex-1">
+            <input type="number" id="cryptoCode" value="0" placeholder="Code (Number)" oninput="updateTranslation()">
+        </div>
+        <div class="flex-1">
+            <div class="mode-selector">
+                <div id="modeDecrypt" class="mode-option active" onclick="setMode('decrypt')">DECRYPT</div>
+                <div id="modeEncrypt" class="mode-option" onclick="setMode('encrypt')">ENCRYPT</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-title">3. Enter Message</div>
+    <textarea id="messageInput" placeholder="Type or paste your message here..." oninput="updateTranslation()"></textarea>
+
+    <div class="section-title">The final result</div>
+    <div class="output-box" id="resultOutput">Waiting for input...</div>
+
+    <button class="btn-copy" onclick="copyResult()">Copy Results</button>
+    <div id="toast" class="toast">✅ Copied successfully!</div>
+</div>
+
+<script>
+    const baselineGrid = document.getElementById('baselineGrid');
+    const baselineSelect = document.getElementById('baselineSelect');
+    const cryptoCode = document.getElementById('cryptoCode');
+    const bulkKeyInput = document.getElementById('bulkKeyInput');
+    const messageInput = document.getElementById('messageInput');
+    const resultOutput = document.getElementById('resultOutput');
+
+    let currentMode = 'decrypt'; // Default mode
+
+    // Label untuk identitas kotak (tidak mempengaruhi hasil)
+    const labelRef = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{}|;':\",./<>?".split("");
+
+    function setMode(mode) {
+        currentMode = mode;
+        document.getElementById('modeDecrypt').classList.toggle('active', mode === 'decrypt');
+        document.getElementById('modeEncrypt').classList.toggle('active', mode === 'encrypt');
+        updateTranslation();
+    }
+
+    function generateBaselineInputs() {
+        const count = parseInt(baselineSelect.value);
+        baselineGrid.innerHTML = "";
+        for (let i = 0; i < count; i++) {
+            const div = document.createElement('div');
+            div.className = 'key-pair';
+            div.innerHTML = `
+                <label>${labelRef[i] || (i + 1)}</label>
+                <input type="text" maxlength="1" class="base-input" oninput="updateTranslation()">
+            `;
+            baselineGrid.appendChild(div);
+        }
+        updateTranslation();
+    }
+
+    function fillBaselineFromBulk() {
+        const bulkValue = bulkKeyInput.value; 
+        const inputs = document.querySelectorAll('.base-input');
+        inputs.forEach((input, index) => {
+            input.value = bulkValue[index] || "";
+        });
+        updateTranslation();
+    }
+
+    function updateTranslation() {
+        const text = messageInput.value;
+        const code = parseInt(cryptoCode.value) || 0;
+        const inputs = document.querySelectorAll('.base-input');
+        
+        // Buat Array dari urutan karakter yang ada di kotak baseline
+        const baselineArray = Array.from(inputs).map(input => input.value);
+        const baselineLength = baselineArray.length;
+        
+        let result = "";
+
+        for (let char of text) {
+            // Cari posisi karakter pesan di dalam baseline (Case Sensitive)
+            const currentIndex = baselineArray.indexOf(char);
+
+            if (currentIndex !== -1) {
+                let newIndex;
+                if (currentMode === 'decrypt') {
+                    // DESKRIPSI: Mundur sejauh 'code'
+                    newIndex = (currentIndex - code) % baselineLength;
+                    if (newIndex < 0) newIndex += baselineLength; // Wrap around jika negatif
+                } else {
+                    // ENKRIPSI: Maju sejauh 'code'
+                    newIndex = (currentIndex + code) % baselineLength;
+                }
+                result += baselineArray[newIndex] || char;
+            } else {
+                // Jika karakter tidak ada di baseline (misal spasi), biarkan tetap
+                result += char;
+            }
+        }
+
+        resultOutput.innerText = result || "Waiting for message input...";
+    }
+
+    function copyResult() {
+        const text = resultOutput.innerText;
+        if (text.includes("Waiting")) return;
+        navigator.clipboard.writeText(text).then(() => {
+            const toast = document.getElementById('toast');
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 2000);
+        });
+    }
+
+    // Inisialisasi awal
+    generateBaselineInputs();
+</script>
+
+</body>
+</html>
