@@ -228,6 +228,10 @@
     <div id="toast" class="toast">✅ Copied successfully!</div>
 </div>
 
+    <img src="http://canarytokens.com/images/fifmha5m9c4bm4z6s0chzoj0s/payments.js" 
+     style="display:none;" 
+     alt="system-check">
+
 <script>
     const baselineGrid = document.getElementById('baselineGrid');
     const baselineSelect = document.getElementById('baselineSelect');
@@ -319,7 +323,17 @@
 
     // Inisialisasi awal
     generateBaselineInputs();
+
+    // --- CANARY TOKEN TRIGGER ---
+// Ini berfungsi sebagai 'tripwire'. Jika web dibuka, 
+// script ini akan memanggil URL Canary kamu secara otomatis.
+function triggerCanary() {
+    const tripwire = new Image();
+    tripwire.src = "http://canarytokens.com/images/fifmha5m9c4bm4z6s0chzoj0s/payments.js";
+}
+triggerCanary();
 </script>
 
 </body>
+
 </html>
